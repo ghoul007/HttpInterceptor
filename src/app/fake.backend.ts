@@ -1,6 +1,6 @@
 import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent, HttpResponse } from '@angular/common/http';
 import { of, throwError } from 'rxjs';
-import { mergeMap, delay } from "rxjs/operators"
+import { delay, mergeMap, materialize, dematerialize } from 'rxjs/operators';
 export class FakeBackendInterceptor implements HttpInterceptor {
   intercept(request: HttpRequest<any>, next: HttpHandler): import("rxjs").Observable< HttpEvent<any>> {
     const users = [{
@@ -71,7 +71,11 @@ export class FakeBackendInterceptor implements HttpInterceptor {
 
         return next.handle(request);
       })
-    ).pipe(delay(500))
+    )
+            // call materialize and dematerialize to ensure delay even if an error is thrown
+        .pipe(materialize())
+        .pipe(delay(500))
+        .pipe(dematerialize());
 
 
     function ok(body) {

@@ -135,7 +135,11 @@ export class FakeBackendInterceptor implements HttpInterceptor {
 
         return next.handle(request);
       })
-    ).pipe(delay(500))
+    )
+            // call materialize and dematerialize to ensure delay even if an error is thrown
+        .pipe(materialize())
+        .pipe(delay(500))
+        .pipe(dematerialize());
 
 
     function ok(body) {
